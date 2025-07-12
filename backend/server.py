@@ -6,7 +6,7 @@ import os
 import logging
 from pathlib import Path
 from pydantic import BaseModel, Field
-from typing import List
+from typing import List, Optional
 import uuid
 from datetime import datetime
 
@@ -26,7 +26,49 @@ app = FastAPI()
 api_router = APIRouter(prefix="/api")
 
 
-# Define Models
+# Define Models for Objections
+class ObjectionResponse(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    text: str
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+class Objection(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    title: str
+    responses: List[ObjectionResponse]
+    category: Optional[str] = None
+    tags: List[str] = Field(default_factory=list)
+    is_favorite: bool = Field(default=False)
+    usage_count: int = Field(default=0)
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+class ObjectionCreate(BaseModel):
+    title: str
+    responses: List[str]
+    category: Optional[str] = None
+    tags: List[str] = Field(default_factory=list)
+
+class ObjectionUpdate(BaseModel):
+    title: Optional[str] = None
+    responses: Optional[List[str]] = None
+    category: Optional[str] = None
+    tags: Optional[List[str]] = None
+    is_favorite: Optional[bool] = None
+
+class Quote(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    text: str
+    author: str
+    category: Optional[str] = None
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+class QuoteCreate(BaseModel):
+    text: str
+    author: str
+    category: Optional[str] = None
+
+# Legacy models for status check
 class StatusCheck(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     client_name: str
